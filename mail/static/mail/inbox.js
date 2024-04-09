@@ -16,10 +16,35 @@ function compose_email() {
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
 
+  // Get composition fields
+  let recipients = document.querySelector('#compose-recipients');
+  let subject = document.querySelector('#compose-subject');
+  let body = document.querySelector('#compose-body');
+
   // Clear out composition fields
-  document.querySelector('#compose-recipients').value = '';
-  document.querySelector('#compose-subject').value = '';
-  document.querySelector('#compose-body').value = '';
+  recipients.value = '';
+  subject.value = '';
+  body.value = '';
+  
+  // Send the email when compose-form is submitted
+  document.querySelector('#compose-form').onsubmit = function() {
+    fetch('/emails', {
+      method: 'POST',
+      body: JSON.stringify({
+        recipients: recipients.value,
+        subject: subject.value,
+        body: body.value
+      })
+    })
+    .then(response => response.json())
+    .then(result => {
+      // Print result
+      console.log(result);
+    })
+
+    // Stop form from submitting
+    return false
+  }
 }
 
 function load_mailbox(mailbox) {
