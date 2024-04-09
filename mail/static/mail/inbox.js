@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function compose_email() {
-
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
@@ -38,14 +37,15 @@ function compose_email() {
     })
     .then(response => response.json())
     .then(result => {
-
       if ('message' in result) {
-        // Redirect user to inbox page
+        // If request is success, redirect user to inbox page
         load_mailbox('inbox');
+
         // Display success message to user
         displayMessage(result['message'], 'alert-success');
       }
       else {
+        // If request isn't success, display error message to user
         displayMessage(result['error'], 'alert-danger');
       }
     })
@@ -65,7 +65,6 @@ function load_mailbox(mailbox) {
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 }
 
-
 function displayMessage(message, Class) {
   // Get message element
   messageElement = document.querySelector('#message');
@@ -76,12 +75,11 @@ function displayMessage(message, Class) {
   messageElement.className = `alert ${Class}`;
   messageElement.style.display = 'block';
 
-  // If hide button is clicked, delete the post
+  // If message class is success, remove message after display it
   if (Class === 'alert-success') {
     messageElement.style.animationPlayState = 'running';
     messageElement.addEventListener('animationend', () => {
       messageElement.remove();
     });
   }
-  console.log('dispalyMessage() function is called!');
 }
