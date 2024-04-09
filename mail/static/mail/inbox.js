@@ -25,7 +25,7 @@ function compose_email() {
   recipients.value = '';
   subject.value = '';
   body.value = '';
-  
+
   // Send the email when compose-form is submitted
   document.querySelector('#compose-form').onsubmit = function() {
     fetch('/emails', {
@@ -38,8 +38,16 @@ function compose_email() {
     })
     .then(response => response.json())
     .then(result => {
-      // Print result
-      console.log(result);
+
+      if ('message' in result) {
+        // Redirect user to inbox page
+        load_mailbox('inbox');
+        // Display success message to user
+        displayMessage(result['message'], 'alert-success');
+      }
+      else {
+        displayMessage(result['error'], 'alert-danger');
+      }
     })
 
     // Stop form from submitting
@@ -55,4 +63,25 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+}
+
+
+function displayMessage(message, Class) {
+  // Get message element
+  messageElement = document.querySelector('#message');
+  // Update message element html value
+  messageElement.innerHTML = message
+
+  // Add alert classes and style it
+  messageElement.className = `alert ${Class}`;
+  messageElement.style.display = 'block';
+
+  // If hide button is clicked, delete the post
+  if (Class === 'alert-success') {
+    messageElement.style.animationPlayState = 'running';
+    messageElement.addEventListener('animationend', () => {
+      messageElement.remove();
+    });
+  }
+  console.log('dispalyMessage() function is called!');
 }
