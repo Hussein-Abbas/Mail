@@ -63,6 +63,51 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+
+  // Make GET request for mailbox data.
+  fetch(`/emails/${mailbox}`)
+  .then(response => response.json())
+  .then(emails => {
+    // Iltrate on each email
+    emails.forEach(function(email) {
+      console.log(email);
+      // Create all divs we need
+      let box = document.createElement('div');
+      let sender = document.createElement('div');
+      let subject = document.createElement('div');
+      let timestamp = document.createElement('div');
+
+      // Set correct classes
+      box.classList.add('box');
+      sender.className = 'sender';
+      subject.className = 'subject';
+      timestamp.className = 'timestamp';
+
+      // Set box values
+      box.id = email['id'];
+      if (email['read']) {
+        box.classList.add('readed');
+      }
+      else {
+        box.classList.add('unreaded');
+      }
+
+      // Set inner html values
+      sender.innerHTML = email['sender'];
+      subject.innerHTML = email['subject'];
+      timestamp.innerHTML = email['timestamp'];
+
+      // Add parts of email to the box
+      box.append(sender);
+      box.append(subject);
+      box.append(timestamp);
+
+      document.querySelector('#emails-view').append(box);
+    })
+  })
+  .catch(error => {
+    displayMessage(error, 'alert-danger');
+  });
 }
 
 function displayMessage(message, Class) {
