@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function compose_email() {
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
 
   // Get composition fields
@@ -60,7 +61,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
-
+  document.querySelector('#email-view').style.display = 'none';
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
@@ -91,6 +92,9 @@ function load_mailbox(mailbox) {
       else {
         box.classList.add('unreaded');
       }
+      box.addEventListener('click', function() {
+        load_email(box.id);
+      });
 
       // Set inner html values
       sender.innerHTML = email['sender'];
@@ -127,4 +131,31 @@ function displayMessage(message, Class) {
       messageElement.remove();
     });
   }
+}
+
+function load_email(id) {
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'block';
+  fetch(`emails/${id}`)
+  .then(response => response.json())
+  .then(data => {
+    document.querySelector('#from').innerHTML = data['sender'];
+    document.querySelector('#to').innerHTML = data['recipients'];
+    document.querySelector('#subject').innerHTML = data['subject'];
+    document.querySelector('#timestamp').innerHTML = data['timestamp'];
+    document.querySelector('#body').innerHTML = data['body'];
+  })
+
+  .catch(error => {
+    displayMessage(error, 'alert-danger');
+  });
+
+  // Mark as read
+  fetch(`/emails/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      read: true,
+    })
+  })
 }
