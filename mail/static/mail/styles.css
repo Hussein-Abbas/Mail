@@ -11,12 +11,13 @@ textarea {
         margin-bottom: 10px;
     }
     75% {
-        opacity: 0;
+        opacity: 1;
         height: 100%;
         line-height: 100%;
         padding: 20px;
         margin-bottom: 10px;
     }
+
     100% {
         opacity: 0;
         height: 0px;
@@ -36,12 +37,18 @@ textarea {
     animation-play-state: paused;
 }
 
-.box {
+.Container {
     display: flex;
     align-items: center;
     border: 1px solid black;
-    padding: 2px 6px 6px 6px;
     margin-bottom: 5px;
+}
+
+.box {
+    display: flex;
+    flex: 10;
+    align-items: center;
+    padding: 2px 6px 6px 6px;
 }
 
 .box:hover {
