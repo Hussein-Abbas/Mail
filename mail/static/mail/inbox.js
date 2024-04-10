@@ -52,16 +52,16 @@ function compose_email() {
     })
 
     // Stop form from submitting
-    return false
+    return false;
   }
 }
 
 function load_mailbox(mailbox) {
-  
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#email-view').style.display = 'none';
+
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
@@ -69,9 +69,8 @@ function load_mailbox(mailbox) {
   fetch(`/emails/${mailbox}`)
   .then(response => response.json())
   .then(emails => {
-    // Iltrate on each email
+    // Iterate on each email
     emails.forEach(function(email) {
-      console.log(email);
       // Create all divs we need
       let box = document.createElement('div');
       let sender = document.createElement('div');
@@ -92,7 +91,10 @@ function load_mailbox(mailbox) {
       else {
         box.classList.add('unreaded');
       }
+
+      // Add click event listener for the email
       box.addEventListener('click', function() {
+        // Load the email by its id
         load_email(box.id);
       });
 
@@ -106,10 +108,12 @@ function load_mailbox(mailbox) {
       box.append(subject);
       box.append(timestamp);
 
+      // Add the box to email view
       document.querySelector('#emails-view').append(box);
     })
   })
   .catch(error => {
+    // Display error if there is
     displayMessage(error, 'alert-danger');
   });
 }
@@ -117,6 +121,7 @@ function load_mailbox(mailbox) {
 function displayMessage(message, Class) {
   // Get message element
   messageElement = document.querySelector('#message');
+
   // Update message element html value
   messageElement.innerHTML = message
 
@@ -133,13 +138,18 @@ function displayMessage(message, Class) {
   }
 }
 
+// Load email view with its id
 function load_email(id) {
+  // Show the email and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#email-view').style.display = 'block';
+
+  // Make GET request to get the email by its id
   fetch(`emails/${id}`)
   .then(response => response.json())
   .then(data => {
+    // Set all values for HTML elements
     document.querySelector('#from').innerHTML = data['sender'];
     document.querySelector('#to').innerHTML = data['recipients'];
     document.querySelector('#subject').innerHTML = data['subject'];
@@ -148,6 +158,7 @@ function load_email(id) {
   })
 
   .catch(error => {
+    // Display error message
     displayMessage(error, 'alert-danger');
   });
 
