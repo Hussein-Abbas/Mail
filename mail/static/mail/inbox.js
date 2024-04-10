@@ -65,57 +65,8 @@ function load_mailbox(mailbox) {
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
-  // Make GET request for mailbox data.
-  fetch(`/emails/${mailbox}`)
-  .then(response => response.json())
-  .then(emails => {
-    // Iterate on each email
-    emails.forEach(function(email) {
-      // Create all divs we need
-      let box = document.createElement('div');
-      let sender = document.createElement('div');
-      let subject = document.createElement('div');
-      let timestamp = document.createElement('div');
-
-      // Set correct classes
-      box.classList.add('box');
-      sender.className = 'sender';
-      subject.className = 'subject';
-      timestamp.className = 'timestamp';
-
-      // Set box values
-      box.id = email['id'];
-      if (email['read']) {
-        box.classList.add('readed');
-      }
-      else {
-        box.classList.add('unreaded');
-      }
-
-      // Add click event listener for the email
-      box.addEventListener('click', function() {
-        // Load the email by its id
-        load_email(box.id);
-      });
-
-      // Set inner html values
-      sender.innerHTML = email['sender'];
-      subject.innerHTML = email['subject'];
-      timestamp.innerHTML = email['timestamp'];
-
-      // Add parts of email to the box
-      box.append(sender);
-      box.append(subject);
-      box.append(timestamp);
-
-      // Add the box to email view
-      document.querySelector('#emails-view').append(box);
-    })
-  })
-  .catch(error => {
-    // Display error if there is
-    displayMessage(error, 'alert-danger');
-  });
+  // Load data and display it
+  load_data(mailbox);
 }
 
 function displayMessage(message, Class) {
@@ -169,4 +120,58 @@ function load_email(id) {
       read: true,
     })
   })
+}
+
+function load_data(mailbox) {
+  // Make GET request for mailbox data.
+  fetch(`/emails/${mailbox}`)
+  .then(response => response.json())
+  .then(emails => {
+    // Iterate on each email
+    emails.forEach(function(email) {
+      // Create all divs we need
+      let box = document.createElement('div');
+      let sender = document.createElement('div');
+      let subject = document.createElement('div');
+      let timestamp = document.createElement('div');
+
+      // Set correct classes
+      box.classList.add('box');
+      sender.className = 'sender';
+      subject.className = 'subject';
+      timestamp.className = 'timestamp';
+
+      // Set box values
+      box.id = email['id'];
+      if (email['read']) {
+        box.classList.add('readed');
+      }
+      else {
+        box.classList.add('unreaded');
+      }
+
+      // Add click event listener for the email
+      box.addEventListener('click', function() {
+        // Load the email by its id
+        load_email(box.id);
+      });
+
+      // Set inner html values
+      sender.innerHTML = email['sender'];
+      subject.innerHTML = email['subject'];
+      timestamp.innerHTML = email['timestamp'];
+
+      // Add parts of email to the box
+      box.append(sender);
+      box.append(subject);
+      box.append(timestamp);
+
+      // Add the box to email view
+      document.querySelector('#emails-view').append(box);
+    })
+  })
+  .catch(error => {
+    // Display error if there is
+    displayMessage(error, 'alert-danger');
+  });
 }
