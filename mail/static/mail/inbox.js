@@ -74,17 +74,17 @@ function displayMessage(message, Class) {
   messageElement = document.querySelector('#message');
 
   // Update message element html value
-  messageElement.innerHTML = message
+  messageElement.innerHTML = message;
 
   // Add alert classes and style it
   messageElement.className = `alert ${Class}`;
   messageElement.style.display = 'block';
 
   // If message class is success, remove message after display it
-  if (Class === 'alert-success') {
+  if (Class !== 'alert-danger') {
     messageElement.style.animationPlayState = 'running';
     messageElement.addEventListener('animationend', () => {
-      messageElement.remove();
+      messageElement.style.display = 'none';
     });
   }
 }
@@ -129,32 +129,31 @@ function load_data(mailbox) {
   .then(emails => {
     // Iterate on each email
     emails.forEach(function(email) {
+      
       // Create all divs we need
+      let Container = document.createElement('div');
       let box = document.createElement('div');
       let sender = document.createElement('div');
       let subject = document.createElement('div');
       let timestamp = document.createElement('div');
 
       // Set correct classes
+      Container.className = 'Container';
       box.classList.add('box');
       sender.className = 'sender';
       subject.className = 'subject';
       timestamp.className = 'timestamp';
 
-      // Set box values
-      box.id = email['id'];
+      // Set emails id to Container
+      Container.id = email['id'];
+
+      // Style emails as read or not
       if (email['read']) {
-        box.classList.add('readed');
+        Container.classList.add('readed');
       }
       else {
-        box.classList.add('unreaded');
+        Container.classList.add('unreaded');
       }
-
-      // Add click event listener for the email
-      box.addEventListener('click', function() {
-        // Load the email by its id
-        load_email(box.id);
-      });
 
       // Set inner html values
       sender.innerHTML = email['sender'];
@@ -166,12 +165,81 @@ function load_data(mailbox) {
       box.append(subject);
       box.append(timestamp);
 
+      // Add box to Container
+      Container.append(box);
+
+      // Add archive button to Container
+      Container.append(createArchiveButton(email));
+
       // Add the box to email view
-      document.querySelector('#emails-view').append(box);
+      document.querySelector('#emails-view').append(Container);
+
+      // Add click event listener for the email
+      box.addEventListener('click', function() {
+        // Load the email by its id
+        load_email(box.parentElement.id);
+      });
     })
   })
-  .catch(error => {
-    // Display error if there is
-    displayMessage(error, 'alert-danger');
+}
+
+
+function createArchiveButton(email) {
+  // Cretae archive button
+  let archiveButton = document.createElement('button');
+  console.log(email);
+
+  // Style archive button
+  archiveButton.className = 'btn btn-sm btn-outline-secondary';
+
+  if (email['archived']) {
+    archiveButton.innerHTML = 'unarchive';
+    console.log('make button "unarchive"');
+  }
+  else {
+    archiveButton.innerHTML = 'archive';
+    console.log('make button "archive"');
+  }
+
+  archiveButton.addEventListener('click', function() {
+    archivingEmail(email);
   });
+
+  // Return archive button
+  return archiveButton;
+}
+
+function archivingEmail(email){
+  if (email['archived']) {    
+    fetch(`/emails/${email['id']}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+          archived: false
+      })
+    })
+    .then(response => {
+      // Display message to user
+      displayMessage("Unarchived", 'alert-secondary');
+
+      // Redircet user to inbox view
+      load_mailbox('inbox');
+    })
+
+  }
+  else {
+    fetch(`/emails/${email['id']}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+          archived: true
+      })
+    })
+    .then(response => {
+      // Display message to user
+      displayMessage("Archived", 'alert-secondary');
+
+      // Redirect user to archive view
+      load_mailbox('archive');    
+    })
+
+  }
 }
