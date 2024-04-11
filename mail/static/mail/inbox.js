@@ -69,6 +69,7 @@ function load_mailbox(mailbox) {
   load_data(mailbox);
 }
 
+// Display message to user
 function displayMessage(message, Class) {
   // Get message element
   messageElement = document.querySelector('#message');
@@ -116,6 +117,7 @@ function load_email(id) {
   })
 }
 
+// Load data for each mailbox
 function load_data(mailbox) {
   // Make GET request for mailbox data.
   fetch(`/emails/${mailbox}`)
@@ -184,7 +186,7 @@ function load_data(mailbox) {
   })
 }
 
-
+// Create archive button
 function createArchiveButton(email) {
   // Cretae archive button
   let archiveButton = document.createElement('button');
@@ -207,6 +209,7 @@ function createArchiveButton(email) {
   return archiveButton;
 }
 
+// Arhive/Unarchive email
 function archivingEmail(email){
   if (email['archived']) {    
     fetch(`/emails/${email['id']}`, {
