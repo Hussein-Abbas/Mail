@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
   load_mailbox('inbox');
 });
 
+// Compose new email
 function compose_email() {
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
@@ -50,12 +51,12 @@ function compose_email() {
         displayMessage(result['error'], 'alert-danger');
       }
     })
-
     // Stop form from submitting
     return false;
   }
 }
 
+// Load mailbox
 function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
@@ -107,6 +108,11 @@ function load_email(id) {
     document.querySelector('#subject').innerHTML = data['subject'];
     document.querySelector('#timestamp').innerHTML = data['timestamp'];
     document.querySelector('#body').innerHTML = data['body'];
+
+    // Add click event listener fo replay button
+    document.querySelector('#replay').addEventListener('click', function() {
+      replay(data);
+    });
   })
   // Mark as read
   fetch(`/emails/${id}`, {
@@ -173,14 +179,12 @@ function load_data(mailbox) {
         Container.append(createArchiveButton(email));
       }
 
-
-      // Add the box to email view
+      // Add the Container to email view
       document.querySelector('#emails-view').append(Container);
 
-      // Add click event listener for the email
+      // Add click event listener for the email and load email by its id
       box.addEventListener('click', function() {
-        // Load the email by its id
-        load_email(box.parentElement.id);
+        load_email(Container.id);
       });
     })
   })
@@ -243,4 +247,31 @@ function archivingEmail(email){
     })
 
   }
+}
+
+// Replay email
+function replay(email) {
+  // Redirect user to compose email page
+  compose_email();
+
+  // Pre-fill recipient field
+  document.querySelector('#compose-recipients').value = email['sender'];
+
+  // Get email subject
+  let re_subject = email['subject'];
+
+  // Check if email subject startswith 're'
+  if (!re_subject.startsWith('Re')) {
+    // If not, add 'Re: ' to it
+    re_subject = 'Re: ' + re_subject;
+  }
+
+  // Pre-fill subject field
+  document.querySelector('#compose-subject').value = re_subject;
+
+  // Format email body
+  let email_body = `On ${email['timestamp']} ${email['sender']} wrote: ${email['body']}`;
+
+  // Pre-fill body field
+  document.querySelector('#compose-body').value = email_body;
 }
