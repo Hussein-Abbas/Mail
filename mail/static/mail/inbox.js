@@ -168,8 +168,15 @@ function load_data(mailbox) {
       // Add box to Container
       Container.append(box);
 
-      // Add archive button to Container
-      Container.append(createArchiveButton(email));
+      // Get user Email
+      userEmail = document.querySelector('h2').innerHTML;
+
+      // If the email isn't from the user, add archive button
+      if (userEmail !== email['sender']) {
+        // Add archive button to Container
+        Container.append(createArchiveButton(email));
+      }
+
 
       // Add the box to email view
       document.querySelector('#emails-view').append(Container);
