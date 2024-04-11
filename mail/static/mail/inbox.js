@@ -238,7 +238,7 @@ function archivingEmail(email){
       displayMessage("Archived", 'alert-secondary');
 
       // Redirect user to archive view
-      load_mailbox('archive');    
+      load_mailbox('inbox');    
     })
 
   }
