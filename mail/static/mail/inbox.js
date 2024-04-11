@@ -108,11 +108,6 @@ function load_email(id) {
     document.querySelector('#body').innerHTML = data['body'];
   })
 
-  .catch(error => {
-    // Display error message
-    displayMessage(error, 'alert-danger');
-  });
-
   // Mark as read
   fetch(`/emails/${id}`, {
     method: 'PUT',
@@ -194,18 +189,15 @@ function load_data(mailbox) {
 function createArchiveButton(email) {
   // Cretae archive button
   let archiveButton = document.createElement('button');
-  console.log(email);
 
   // Style archive button
   archiveButton.className = 'btn btn-sm btn-outline-secondary';
 
   if (email['archived']) {
     archiveButton.innerHTML = 'unarchive';
-    console.log('make button "unarchive"');
   }
   else {
     archiveButton.innerHTML = 'archive';
-    console.log('make button "archive"');
   }
 
   archiveButton.addEventListener('click', function() {
