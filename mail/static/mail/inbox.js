@@ -107,7 +107,6 @@ function load_email(id) {
     document.querySelector('#timestamp').innerHTML = data['timestamp'];
     document.querySelector('#body').innerHTML = data['body'];
   })
-
   // Mark as read
   fetch(`/emails/${id}`, {
     method: 'PUT',
