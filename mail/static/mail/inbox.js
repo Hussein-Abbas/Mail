@@ -107,12 +107,6 @@ function load_email(id) {
     document.querySelector('#timestamp').innerHTML = data['timestamp'];
     document.querySelector('#body').innerHTML = data['body'];
   })
-
-  .catch(error => {
-    // Display error message
-    displayMessage(error, 'alert-danger');
-  });
-
   // Mark as read
   fetch(`/emails/${id}`, {
     method: 'PUT',
@@ -168,8 +162,15 @@ function load_data(mailbox) {
       // Add box to Container
       Container.append(box);
 
-      // Add archive button to Container
-      Container.append(createArchiveButton(email));
+      // Get user Email
+      userEmail = document.querySelector('h2').innerHTML;
+
+      // If the email isn't from the user, add archive button
+      if (userEmail !== email['sender']) {
+        // Add archive button to Container
+        Container.append(createArchiveButton(email));
+      }
+
 
       // Add the box to email view
       document.querySelector('#emails-view').append(Container);
@@ -187,18 +188,15 @@ function load_data(mailbox) {
 function createArchiveButton(email) {
   // Cretae archive button
   let archiveButton = document.createElement('button');
-  console.log(email);
 
   // Style archive button
   archiveButton.className = 'btn btn-sm btn-outline-secondary';
 
   if (email['archived']) {
     archiveButton.innerHTML = 'unarchive';
-    console.log('make button "unarchive"');
   }
   else {
     archiveButton.innerHTML = 'archive';
-    console.log('make button "archive"');
   }
 
   archiveButton.addEventListener('click', function() {
@@ -238,7 +236,7 @@ function archivingEmail(email){
       displayMessage("Archived", 'alert-secondary');
 
       // Redirect user to archive view
-      load_mailbox('archive');    
+      load_mailbox('inbox');    
     })
 
   }
