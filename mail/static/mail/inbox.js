@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-
   // Use buttons to toggle between views
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
@@ -10,9 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
   load_mailbox('inbox');
 });
 
-// Compose new email
+// Function to handle email composition
 function compose_email() {
   // Show compose view and hide other views
+  document.querySelector('#message').style.display = 'none';
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#email-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
@@ -27,7 +27,7 @@ function compose_email() {
   subject.value = '';
   body.value = '';
 
-  // Send the email when compose-form is submitted
+  // Send the email when compose form is submitted
   document.querySelector('#compose-form').onsubmit = function() {
     fetch('/emails', {
       method: 'POST',
@@ -41,89 +41,45 @@ function compose_email() {
     .then(result => {
       if ('message' in result) {
         // If request is success, redirect user to inbox page
-        load_mailbox('inbox');
-
+        load_mailbox('sent');
         // Display success message to user
         displayMessage(result['message'], 'alert-success');
       }
       else {
         // If request isn't success, display error message to user
         displayMessage(result['error'], 'alert-danger');
+
+        // Adjusting the vertical scroll position to ensure visibility of the message at the top of the window
+        window.scrollTo(0, 0);
       }
     })
+    .catch(error => {
+      console.error('Error', error);
+      displayMessage('An error occurred. Please try again later.', 'alert-danger');
+      window.scrollTo(0, 0);
+    })
+
     // Stop form from submitting
     return false;
   }
 }
 
-// Load mailbox
+// Function to load a specific mailbox
 function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
+  document.querySelector('#message').style.display = 'none';
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#email-view').style.display = 'none';
 
-  // Show the mailbox name
+  // Display mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
-  // Load data and display it
+  // Load data for the specified mailbox
   load_data(mailbox);
 }
 
-// Display message to user
-function displayMessage(message, Class) {
-  // Get message element
-  messageElement = document.querySelector('#message');
-
-  // Update message element html value
-  messageElement.innerHTML = message;
-
-  // Add alert classes and style it
-  messageElement.className = `alert ${Class}`;
-  messageElement.style.display = 'block';
-
-  // If message class is success, remove message after display it
-  if (Class !== 'alert-danger') {
-    messageElement.style.animationPlayState = 'running';
-    messageElement.addEventListener('animationend', () => {
-      messageElement.style.display = 'none';
-    });
-  }
-}
-
-// Load email view with its id
-function load_email(id) {
-  // Show the email and hide other views
-  document.querySelector('#emails-view').style.display = 'none';
-  document.querySelector('#compose-view').style.display = 'none';
-  document.querySelector('#email-view').style.display = 'block';
-
-  // Make GET request to get the email by its id
-  fetch(`emails/${id}`)
-  .then(response => response.json())
-  .then(data => {
-    // Set all values for HTML elements
-    document.querySelector('#from').innerHTML = data['sender'];
-    document.querySelector('#to').innerHTML = data['recipients'];
-    document.querySelector('#subject').innerHTML = data['subject'];
-    document.querySelector('#timestamp').innerHTML = data['timestamp'];
-    document.querySelector('#body').innerHTML = data['body'];
-
-    // Add click event listener fo replay button
-    document.querySelector('#replay').addEventListener('click', function() {
-      replay(data);
-    });
-  })
-  // Mark as read
-  fetch(`/emails/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      read: true,
-    })
-  })
-}
-
-// Load data for each mailbox
+// Function to load data for each mailbox
 function load_data(mailbox) {
   // Make GET request for mailbox data.
   fetch(`/emails/${mailbox}`)
@@ -190,6 +146,59 @@ function load_data(mailbox) {
   })
 }
 
+// Function to display message to user
+function displayMessage(message, Class) {
+  // Get message element
+  messageElement = document.querySelector('#message');
+
+  // Update message element html value
+  messageElement.innerHTML = message;
+
+  // Add alert classes and style it
+  messageElement.className = `alert ${Class}`;
+  messageElement.style.display = 'block';
+
+  // If message class is success, remove message after display it
+  if (Class !== 'alert-danger') {
+    messageElement.style.animationPlayState = 'running';
+    messageElement.addEventListener('animationend', () => {
+      messageElement.style.display = 'none';
+    });
+  }
+}
+
+// Function to load email view with its id
+function load_email(id) {
+  // Show the email and hide other views
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'block';
+
+  // Make GET request to get the email by its id
+  fetch(`emails/${id}`)
+  .then(response => response.json())
+  .then(data => {
+    // Set all values for HTML elements
+    document.querySelector('#from').innerHTML = data['sender'];
+    document.querySelector('#to').innerHTML = data['recipients'];
+    document.querySelector('#subject').innerHTML = data['subject'];
+    document.querySelector('#timestamp').innerHTML = data['timestamp'];
+    document.querySelector('#body').innerHTML = data['body'];
+
+    // Add click event listener fo replay button
+    document.querySelector('#replay').addEventListener('click', function() {
+      replay(data);
+    });
+  })
+  // Mark as read
+  fetch(`/emails/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      read: true,
+    })
+  })
+}
+
 // Create archive button
 function createArchiveButton(email) {
   // Cretae archive button
@@ -213,7 +222,7 @@ function createArchiveButton(email) {
   return archiveButton;
 }
 
-// Arhive/Unarchive email
+// Function arhive/unarchive email
 function archivingEmail(email){
   if (email['archived']) {    
     fetch(`/emails/${email['id']}`, {
@@ -249,7 +258,7 @@ function archivingEmail(email){
   }
 }
 
-// Replay email
+// Function to replay email
 function replay(email) {
   // Redirect user to compose email page
   compose_email();
